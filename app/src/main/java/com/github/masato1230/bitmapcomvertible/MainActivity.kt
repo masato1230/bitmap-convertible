@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
@@ -59,6 +62,14 @@ class MainActivity : ComponentActivity() {
                                     },
                             )
                         }
+
+                        Text(
+                            text = "Long press to show bitmap thumbnail",
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(20.dp),
+                        )
+
                         bitmap.value?.let {
                             var isShowThumbnail by remember { mutableStateOf(false) }
                             LaunchedEffect(key1 = bitmap.value) {
@@ -74,8 +85,9 @@ class MainActivity : ComponentActivity() {
                                     bitmap = it.asImageBitmap(),
                                     contentDescription = "thumbnail",
                                     modifier = Modifier
-                                        .width(100.dp)
-                                        .padding(20.dp),
+                                        .width(200.dp)
+                                        .padding(20.dp)
+                                        .background(Color.White),
                                 )
                             }
                         }
