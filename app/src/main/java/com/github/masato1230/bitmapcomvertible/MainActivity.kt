@@ -4,10 +4,13 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -73,29 +76,39 @@ class MainActivity : ComponentActivity() {
                                 .padding(20.dp),
                         )
 
+                        // bitmap thumbnail
                         bitmap.value?.let {
-                            var isShowThumbnail by remember { mutableStateOf(false) }
+                            var isFullSizeThumbnail by remember { mutableStateOf(true) }
+                            var isFinishedSizeAnimation by remember { mutableStateOf(true) }
                             LaunchedEffect(key1 = bitmap.value) {
-                                isShowThumbnail = true
+                                isFinishedSizeAnimation = false
+                                isFullSizeThumbnail = true
                                 delay(500)
-                                isShowThumbnail = false
+                                isFullSizeThumbnail = false
                             }
 
                             val animatedThumbnailSize by animateFloatAsState(
-                                targetValue = if (isShowThumbnail) 1f else 0.33f,
-                                animationSpec = if (isShowThumbnail) snap() else tween(500),
+                                targetValue = if (isFullSizeThumbnail) 1f else 0.33f,
+                                animationSpec = if (isFullSizeThumbnail) snap() else tween(500),
+                                finishedListener = { if (!isFullSizeThumbnail) isFinishedSizeAnimation = true },
                             )
 
-                            Image(
-                                bitmap = it.asImageBitmap(),
-                                contentDescription = "thumbnail",
-                                modifier = Modifier
-                                    .fillMaxSize(animatedThumbnailSize)
-                                    .align(Alignment.BottomEnd)
-                                    .width(200.dp)
-                                    .padding(10.dp)
-                                    .background(Color.White),
-                            )
+                            AnimatedVisibility(
+                                visible = !isFinishedSizeAnimation,
+                                enter = EnterTransition.None,
+                                exit = fadeOut(tween(1000)),
+                                modifier = Modifier.align(Alignment.BottomEnd),
+                            ) {
+                                Image(
+                                    bitmap = it.asImageBitmap(),
+                                    contentDescription = "thumbnail",
+                                    modifier = Modifier
+                                        .fillMaxSize(animatedThumbnailSize)
+                                        .width(200.dp)
+                                        .padding(10.dp)
+                                        .background(Color.White),
+                                )
+                            }
                         }
                     }
                 }
