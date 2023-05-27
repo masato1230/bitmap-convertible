@@ -4,7 +4,10 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -36,13 +39,13 @@ import com.github.masato1230.bitmapcomvertible.ui.theme.BitmapComvertibleTheme
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             BitmapComvertibleTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
                     val bitmapConvertibleState = rememberBitmapConvertibleState()
@@ -64,7 +67,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Text(
-                            text = "Long press to show bitmap thumbnail",
+                            text = "Long press to capture bitmap",
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
                                 .padding(20.dp),
@@ -74,22 +77,25 @@ class MainActivity : ComponentActivity() {
                             var isShowThumbnail by remember { mutableStateOf(false) }
                             LaunchedEffect(key1 = bitmap.value) {
                                 isShowThumbnail = true
-                                delay(5000)
+                                delay(500)
                                 isShowThumbnail = false
                             }
-                            AnimatedVisibility(
-                                visible = isShowThumbnail,
-                                modifier = Modifier.align(Alignment.BottomEnd)
-                            ) {
-                                Image(
-                                    bitmap = it.asImageBitmap(),
-                                    contentDescription = "thumbnail",
-                                    modifier = Modifier
-                                        .width(200.dp)
-                                        .padding(20.dp)
-                                        .background(Color.White),
-                                )
-                            }
+
+                            val animatedThumbnailSize by animateFloatAsState(
+                                targetValue = if (isShowThumbnail) 1f else 0.33f,
+                                animationSpec = if (isShowThumbnail) snap() else tween(500),
+                            )
+
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = "thumbnail",
+                                modifier = Modifier
+                                    .fillMaxSize(animatedThumbnailSize)
+                                    .align(Alignment.BottomEnd)
+                                    .width(200.dp)
+                                    .padding(10.dp)
+                                    .background(Color.White),
+                            )
                         }
                     }
                 }
