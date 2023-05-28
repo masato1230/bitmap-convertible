@@ -20,9 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,12 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.drawToBitmap
 import com.github.masato1230.bitmapcomvertible.ui.theme.BitmapComvertibleTheme
+import com.github.masato1230.bitmapconvertible.BitmapConvertible
+import com.github.masato1230.bitmapconvertible.rememberBitmapConvertibleState
 import kotlinx.coroutines.delay
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
@@ -119,36 +116,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@Composable
-fun BitmapConvertible(
-    state: BitmapConvertibleState,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    AndroidView(
-        modifier = modifier,
-        factory = {
-            val view = ComposeView(it).apply {
-                setContent(content)
-            }
-            state.setComposeView(view)
-            return@AndroidView view
-        },
-    )
-}
-
-@Stable
-class BitmapConvertibleState {
-    private lateinit var _composeView: ComposeView
-    fun setComposeView(view: ComposeView) {
-        _composeView = view
-    }
-
-    fun getBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-        return _composeView.drawToBitmap(config = config)
-    }
-}
-
-@Composable
-fun rememberBitmapConvertibleState() = remember { BitmapConvertibleState() }
