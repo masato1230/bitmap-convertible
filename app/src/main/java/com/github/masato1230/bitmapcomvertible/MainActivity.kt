@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -40,9 +39,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.drawToBitmap
 import com.github.masato1230.bitmapcomvertible.ui.theme.BitmapComvertibleTheme
 import kotlinx.coroutines.delay
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -52,13 +52,16 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val bitmap = remember { mutableStateOf<Bitmap?>(null) }
                     val bitmapConvertibleState = rememberBitmapConvertibleState()
+                    val zoomState = rememberZoomState()
                     Box {
                         BitmapConvertible(state = bitmapConvertibleState) {
                             Image(
                                 painter = painterResource(id = R.drawable.train),
                                 contentDescription = "train",
+
                                 modifier = Modifier
                                     .fillMaxSize()
+                                    .zoomable(zoomState)
                                     .pointerInput(Unit) {
                                         detectTapGestures(
                                             onLongPress = {
